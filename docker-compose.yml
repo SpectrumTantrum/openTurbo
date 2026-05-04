@@ -1,0 +1,9 @@
+services:
+  sync-server:
+    build:
+      context: ./sync-server
+    ports:
+      - "8787:8787"
+    environment:
+      PORT: "8787"
+      OPENTURBO_SYNC_SECRET: "change-me-for-production"

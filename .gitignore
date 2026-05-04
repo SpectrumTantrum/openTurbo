@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-renderer/
+dist-tests/
+release/
+.DS_Store
+*.log
+coverage/
+.env
+.env.*
+!.env.example
+OpenTurbo.local/

@@ -1,0 +1,60 @@
+{
+  "name": "openturbo",
+  "version": "0.1.0",
+  "description": "Local-first open-source AI study desktop app.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "main": "dist/src/main/main.js",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "dev:electron": "npm run build:main && electron .",
+    "build": "npm run typecheck && npm run build:main && vite build",
+    "build:main": "tsc -p tsconfig.main.json",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build:main && node --test dist/tests/*.test.js",
+    "package": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
+    "@xyflow/react": "^12.10.0",
+    "lucide-react": "^0.561.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "recharts": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.2",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.7"
+  },
+  "build": {
+    "appId": "dev.openturbo.desktop",
+    "productName": "OpenTurbo",
+    "files": [
+      "dist/**/*",
+      "dist-renderer/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "mac": {
+      "category": "public.app-category.education"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Education"
+    }
+  }
+}
