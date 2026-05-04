@@ -10,8 +10,10 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "declaration": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "types": ["node"]
   },
-  "include": ["src/main/**/*.ts", "src/shared/**/*.ts", "src/types/**/*.d.ts", "tests/**/*.ts"],
+  "include": ["src/main/**/*.ts", "src/shared/**/*.ts", "src/types/**/*.d.ts", "tests/**/*.ts", "tests/**/*.tsx"],
   "exclude": ["src/renderer"]
 }

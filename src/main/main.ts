@@ -10,8 +10,8 @@ async function createWindow(): Promise<void> {
   const window = new BrowserWindow({
     width: 1440,
     height: 950,
-    minWidth: 1100,
-    minHeight: 760,
+    minWidth: 860,
+    minHeight: 640,
     title: "OpenTurbo",
     backgroundColor: "#f7f9fb",
     titleBarStyle: "hiddenInset",

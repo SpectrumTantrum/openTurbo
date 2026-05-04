@@ -13,7 +13,8 @@ import type {
   Space,
   StudyPack
 } from "../../shared/types.js";
-import { defaultProviders, detectLocalRuntimes } from "../../main/providers.js";
+import type { ProviderConfig } from "../../shared/types.js";
+import { defaultProviders, type ProviderHealth } from "../../main/providers.js";
 
 export interface OpenTurboClient {
   snapshot(): Promise<AppSnapshot>;
@@ -23,14 +24,39 @@ export interface OpenTurboClient {
   chat(input: ChatInput): Promise<ChatMessage>;
   review(input: ReviewInput): Promise<StudyPack>;
   exportPack(packId: string, format: "markdown" | "json" | "anki-csv"): Promise<string>;
-  providerHealth(): Promise<unknown>;
+  providerHealth(): Promise<ProviderHealth[]>;
+  testProvider(providerId: string): Promise<ProviderHealth>;
 }
 
 export function createClient(): OpenTurboClient {
-  if (window.openTurbo) {
-    return window.openTurbo as OpenTurboClient;
+  const electronClient = currentElectronClient();
+  if (electronClient) {
+    return createElectronSafeClient(electronClient);
   }
   return createBrowserPreviewClient();
+}
+
+function currentElectronClient(): OpenTurboClient | undefined {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+  return (window as Window & { openTurbo?: OpenTurboClient }).openTurbo;
+}
+
+function createElectronSafeClient(client: OpenTurboClient): OpenTurboClient {
+  return {
+    ...client,
+    async testProvider(providerId) {
+      try {
+        return await client.testProvider(providerId);
+      } catch (error) {
+        if (!isProviderNotFoundError(providerId, error)) {
+          throw error;
+        }
+        return failedProviderHealth(providerId, error);
+      }
+    }
+  };
 }
 
 function createBrowserPreviewClient(): OpenTurboClient {
@@ -169,9 +195,64 @@ function createBrowserPreviewClient(): OpenTurboClient {
       return `preview://${packId}.${format}`;
     },
     async providerHealth() {
-      return detectLocalRuntimes(settings.providers);
+      return settings.providers.filter(isPreviewRuntimeProvider).map(previewProviderHealth);
+    },
+    async testProvider(providerId) {
+      const provider = settings.providers.find((candidate) => candidate.id === providerId);
+      if (!provider) {
+        return failedProviderHealth(providerId, `Provider ${providerId} was not found in browser preview.`);
+      }
+      return previewProviderHealth(provider);
     }
   };
+}
+
+function isPreviewRuntimeProvider(provider: ProviderConfig): boolean {
+  return ["mock", "ollama", "lmstudio", "openai-compatible"].includes(provider.kind);
+}
+
+function previewProviderHealth(provider: ProviderConfig): ProviderHealth {
+  if (provider.kind === "mock") {
+    return {
+      kind: provider.kind,
+      label: provider.label,
+      ok: true,
+      message: "Offline template generator is ready.",
+      models: ["offline-template"]
+    };
+  }
+
+  return {
+    kind: provider.kind,
+    label: provider.label,
+    ok: false,
+    message: provider.enabled ? "Provider checks are simulated in browser preview." : "Provider is disabled in browser preview.",
+    models: provider.chatModel ? [provider.chatModel] : []
+  };
+}
+
+function failedProviderHealth(providerId: string, error: unknown): ProviderHealth {
+  return {
+    kind: "mock",
+    label: providerId,
+    ok: false,
+    message: errorMessage(error),
+    models: []
+  };
+}
+
+function isProviderNotFoundError(providerId: string, error: unknown): boolean {
+  return error instanceof Error && error.message === `Provider ${providerId} was not found.`;
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  if (typeof error === "string" && error) {
+    return error;
+  }
+  return "Provider test failed.";
 }
 
 function job(type: Job["type"], label: string, detail: string, progress: number, status: Job["status"]): Job {
