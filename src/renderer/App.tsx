@@ -1,8 +1,4 @@
-import "@mantine/core/styles.css";
-import "@xyflow/react/dist/style.css";
-import "./App.css";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { createRoot } from "react-dom/client";
 import {
   ActionIcon,
   Alert,
@@ -84,7 +80,7 @@ type ActionResult<T> = { ok: true; value: T } | { ok: false };
 type NavLabel = "Library" | "Spaces" | "Review" | "Analytics" | "Sync" | "Settings";
 type SettingsDraft = Pick<AppSnapshot["settings"], "syncServerUrl" | "privacyMode">;
 
-function App() {
+export function App() {
   const [snapshot, setSnapshot] = useState<AppSnapshot | null>(null);
   const [activeNav, setActiveNav] = useState<NavLabel>("Library");
   const [activeTab, setActiveTab] = useState<StudyTab>("notes");
@@ -421,6 +417,7 @@ function App() {
         title="Import source"
         size="lg"
         radius={8}
+        closeButtonProps={{ "aria-label": "Close import source" }}
       >
         <Stack>
           <TextInput label="Title" value={importTitle} onChange={(event) => setImportTitle(event.currentTarget.value)} />
@@ -664,24 +661,29 @@ function Sidebar({
       </div>
       <nav>
         {nav.map(([label, Icon]) => (
-          <button
-            className={`nav-item ${active === label ? "active" : ""}`}
-            key={label}
-            onClick={() => {
-              setActive(label);
-              if (label === "Settings") {
-                onSettings();
-              }
-            }}
-          >
-            <Icon size={18} />
-            <span>{label}</span>
-            {navBadges[label] && (
-              <Badge size="xs" variant="light" color={label === "Sync" && snapshot.sync.state === "error" ? "red" : "teal"} style={{ marginLeft: "auto" }}>
-                {navBadges[label]}
-              </Badge>
-            )}
-          </button>
+          <Tooltip key={label} label={label} position="right" openDelay={250}>
+            <button
+              aria-current={active === label ? "page" : undefined}
+              aria-label={label}
+              className={`nav-item ${active === label ? "active" : ""}`}
+              title={label}
+              type="button"
+              onClick={() => {
+                setActive(label);
+                if (label === "Settings") {
+                  onSettings();
+                }
+              }}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+              {navBadges[label] && (
+                <Badge size="xs" variant="light" color={label === "Sync" && snapshot.sync.state === "error" ? "red" : "teal"} style={{ marginLeft: "auto" }}>
+                  {navBadges[label]}
+                </Badge>
+              )}
+            </button>
+          </Tooltip>
         ))}
       </nav>
       <div className="sidebar-footer">
@@ -1738,7 +1740,7 @@ function SettingsDrawer({
   }
 
   return (
-    <Drawer opened={opened} onClose={onClose} title="Settings" position="right" size="xl">
+    <Drawer opened={opened} onClose={onClose} title="Settings" position="right" size="xl" closeButtonProps={{ "aria-label": "Close settings" }}>
       <Stack>
         <Switch
           label="Privacy mode"
@@ -1884,7 +1886,5 @@ function mindMapToFlow(root: MindMapNode): { nodes: Node[]; edges: Edge[] } {
   walk(root, 0, 3);
   return { nodes, edges };
 }
-
-createRoot(document.getElementById("root")!).render(<App />);
 
 export default App;
