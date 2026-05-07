@@ -38,6 +38,39 @@ test("AssistantPrompt is disabled while a request is in flight", () => {
   assert.equal(input.disabled, true);
 });
 
+const { DashboardCanvas } = await import("../src/renderer/dashboard/DashboardCanvas.js");
+
+test("DashboardCanvas renders each payload in order", () => {
+  render(wrap(<DashboardCanvas
+    payloads={[
+      { component: "ReviewQueueCard", props: { dueCount: 1, preview: [] }, actions: {} },
+      { component: "JobStatusCard", props: { jobs: [] }, actions: {} }
+    ]}
+    onAction={() => undefined}
+    dev
+  />));
+  assert.ok(screen.getByText("Review queue"));
+  assert.ok(screen.getByText("Jobs"));
+});
+
+test("DashboardCanvas isolates errors so one bad payload does not blow up the rest", () => {
+  render(wrap(<DashboardCanvas
+    payloads={[
+      { component: "BogusCard", props: {}, actions: {} },
+      { component: "ReviewQueueCard", props: { dueCount: 0, preview: [] }, actions: {} }
+    ]}
+    onAction={() => undefined}
+    dev
+  />));
+  assert.ok(screen.getByText(/unsupported component/i));
+  assert.ok(screen.getByText("Review queue"));
+});
+
+test("DashboardCanvas renders empty-state hint when payloads is empty", () => {
+  render(wrap(<DashboardCanvas payloads={[]} onAction={() => undefined} dev />));
+  assert.ok(screen.getByText(/ask the assistant to assemble/i));
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
