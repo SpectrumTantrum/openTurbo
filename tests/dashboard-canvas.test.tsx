@@ -71,6 +71,23 @@ test("DashboardCanvas renders empty-state hint when payloads is empty", () => {
   assert.ok(screen.getByText(/ask the assistant to assemble/i));
 });
 
+const { StaticOverview } = await import("../src/renderer/dashboard/StaticOverview.js");
+
+test("StaticOverview renders calm activity overview without prompting agent", () => {
+  render(wrap(<StaticOverview
+    snapshotHints={{
+      dueCount: 4,
+      weakAreas: ["Membrane transport"],
+      jobs: [],
+      firstSourceTitle: "Cellular Biology"
+    }}
+    onAction={() => undefined}
+  />));
+  assert.ok(screen.getByText("Review queue"));
+  assert.ok(screen.getByText("Weak areas"));
+  assert.ok(screen.getByText("Membrane transport"));
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
