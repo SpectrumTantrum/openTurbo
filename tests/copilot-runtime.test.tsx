@@ -44,6 +44,28 @@ test("invalid agent payloads are filtered out before exposure", async () => {
   assert.equal(screen.getByTestId("payloads").textContent, "ReviewQueueCard");
 });
 
+test("GenerativeStudyDashboard renders agent payloads when a transport is provided", async () => {
+  const fakeTransport = {
+    subscribe(cb: (payload: { component: string; props: Record<string, unknown>; actions?: Record<string, { actionId: string }> }) => void) {
+      cb({
+        component: "ReviewQueueCard",
+        props: { dueCount: 9, preview: [{ cardId: "c1", front: "Define osmosis" }] },
+        actions: { onOpenReview: { actionId: "open-review" } }
+      });
+      return () => undefined;
+    },
+    async send() { return; }
+  };
+  const { GenerativeStudyDashboard } = await import("../src/renderer/dashboard/GenerativeStudyDashboard.js");
+  render(wrap(<GenerativeStudyDashboard
+    snapshotHints={{ dueCount: 0, weakAreas: [], jobs: [] }}
+    onAction={() => undefined}
+    agentAvailable
+    transport={fakeTransport}
+  />));
+  assert.ok(await screen.findByText("Define osmosis"));
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
