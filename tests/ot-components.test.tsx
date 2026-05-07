@@ -63,6 +63,31 @@ test("OTCard renders aside without a title without rendering a spacer span", () 
   assert.equal(card.querySelectorAll("span:empty").length, 0, "no empty span should be rendered as a spacer");
 });
 
+const { OTMetric, OTProgressBar, OTStatusBadge } = await import("../src/renderer/components/ot/index.js");
+
+test("OTMetric renders label, value, optional delta with semantic color", () => {
+  render(wrap(<OTMetric label="Cards due" value={12} delta={{ direction: "up", text: "+3 since yesterday" }} />));
+  assert.ok(screen.getByText("Cards due"));
+  assert.ok(screen.getByText("12"));
+  const delta = screen.getByText("+3 since yesterday");
+  assert.equal(delta.getAttribute("data-direction"), "up");
+});
+
+test("OTProgressBar uses 0..100 scale and exposes accessible value", () => {
+  render(wrap(<OTProgressBar label="Mastery" value={42} />));
+  const bar = screen.getByRole("progressbar", { name: "Mastery" });
+  assert.equal(bar.getAttribute("aria-valuenow"), "42");
+  assert.equal(bar.getAttribute("aria-valuemin"), "0");
+  assert.equal(bar.getAttribute("aria-valuemax"), "100");
+});
+
+test("OTStatusBadge maps status to color and label", () => {
+  const { rerender } = render(wrap(<OTStatusBadge status="ok" label="Healthy" />));
+  assert.ok(screen.getByText("Healthy"));
+  rerender(wrap(<OTStatusBadge status="error" label="Down" />));
+  assert.ok(screen.getByText("Down"));
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
