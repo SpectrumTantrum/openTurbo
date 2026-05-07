@@ -89,6 +89,39 @@ test("PackProgressCard shows mastery and counts, fires onOpenPack", () => {
   assert.equal(opened, 1);
 });
 
+const { GenerationPreviewCard, JobStatusCard } = await import("../src/renderer/components/study/index.js");
+
+test("GenerationPreviewCard renders requested outputs as togglable chips", () => {
+  let outputs: string[] = ["notes", "flashcards"];
+  render(wrap(
+    <GenerationPreviewCard
+      sourceTitle="Cellular Biology"
+      outputs={["notes", "flashcards", "quiz"] as const}
+      selectedOutputs={["notes", "flashcards"] as const}
+      onConfirm={(selected) => { outputs = [...selected]; }}
+      onToggleOutput={() => undefined}
+    />
+  ));
+  assert.ok(screen.getByText(/cellular biology/i));
+  fireEvent.click(screen.getByRole("button", { name: "Confirm generation" }));
+  assert.deepEqual(outputs, ["notes", "flashcards"]);
+});
+
+test("JobStatusCard renders status badge per job and progress bar for running jobs", () => {
+  render(wrap(
+    <JobStatusCard
+      jobs={[
+        { id: "j1", label: "OCR Processing", detail: "Campbell.pdf", status: "running", progress: 70 },
+        { id: "j2", label: "Index", detail: "Library", status: "completed", progress: 100 }
+      ]}
+    />
+  ));
+  assert.ok(screen.getByText("OCR Processing"));
+  assert.ok(screen.getByText("Index"));
+  const running = screen.getByRole("progressbar", { name: "OCR Processing" });
+  assert.equal(running.getAttribute("aria-valuenow"), "70");
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
