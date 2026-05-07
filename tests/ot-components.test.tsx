@@ -81,6 +81,15 @@ test("OTProgressBar uses 0..100 scale and exposes accessible value", () => {
   assert.equal(bar.getAttribute("aria-valuemax"), "100");
 });
 
+test("OTProgressBar clamps out-of-range values and treats NaN as 0", () => {
+  const { rerender } = render(wrap(<OTProgressBar label="Over" value={150} />));
+  assert.equal(screen.getByRole("progressbar", { name: "Over" }).getAttribute("aria-valuenow"), "100");
+  rerender(wrap(<OTProgressBar label="Under" value={-10} />));
+  assert.equal(screen.getByRole("progressbar", { name: "Under" }).getAttribute("aria-valuenow"), "0");
+  rerender(wrap(<OTProgressBar label="Bad" value={Number.NaN} />));
+  assert.equal(screen.getByRole("progressbar", { name: "Bad" }).getAttribute("aria-valuenow"), "0");
+});
+
 test("OTStatusBadge maps status to color and label", () => {
   const { rerender } = render(wrap(<OTStatusBadge status="ok" label="Healthy" />));
   assert.ok(screen.getByText("Healthy"));
