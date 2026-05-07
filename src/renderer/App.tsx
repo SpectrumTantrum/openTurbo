@@ -61,6 +61,8 @@ import {
   Zap
 } from "lucide-react";
 import { createClient } from "./data/client.js";
+import { useDashboardActions } from "./dashboard/useDashboardActions.js";
+import { OTInlineAlert } from "./components/ot/index.js";
 import { StudyWorkspace } from "./workspace/StudyWorkspace.js";
 import { GenerativeStudyDashboard } from "./dashboard/GenerativeStudyDashboard.js";
 import { QuizView } from "./QuizView.js";
@@ -350,6 +352,14 @@ export function App() {
     setActiveNav("Library");
   }
 
+  const dashboardActions = useDashboardActions({
+    client,
+    providerReady: Boolean(defaultProvider?.enabled),
+    defaultSourceId: selectedSource?.id,
+    defaultPackId: selectedPack?.id,
+    onActionFinished: () => { void refresh(); }
+  });
+
   function onDashboardAction(actionId: string, args?: unknown) {
     switch (actionId) {
       case "open-review":
@@ -384,7 +394,7 @@ export function App() {
         setActiveNav("Library");
         return;
       default:
-        // Mutating + unknown actions handled in Task 21.
+        dashboardActions.dispatch(actionId, args);
         return;
     }
   }
@@ -448,7 +458,12 @@ export function App() {
           />
         </main>
         <JobQueue jobs={snapshot.jobs} analytics={snapshot.analytics} />
+        {dashboardActions.lastError && (
+          <OTInlineAlert tone="error" message={dashboardActions.lastError} />
+        )}
       </div>
+
+      {dashboardActions.modal}
 
       <Modal
         opened={importOpen}
