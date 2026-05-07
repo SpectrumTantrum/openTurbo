@@ -15,7 +15,7 @@ test("App shell exposes responsive navigation labels and primary controls update
   render(<App />);
   await screen.findByText("OpenTurbo");
 
-  const navLabels = ["Library", "Spaces", "Review", "Analytics", "Sync", "Settings"];
+  const navLabels = ["Dashboard", "Library", "Spaces", "Review", "Analytics", "Sync", "Settings"];
   const navButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(".nav-item"));
   assert.deepEqual(
     navButtons.map((button) => button.getAttribute("aria-label")),
@@ -77,6 +77,14 @@ test("App shell exposes responsive navigation labels and primary controls update
 
   fireEvent.click(screen.getByRole("button", { name: "Sync" }));
   assert.ok(await screen.findByText("Sync enabled"));
+});
+
+test("App opens on the Generative Study Dashboard with assistant prompt at the bottom", { timeout: 20_000 }, async () => {
+  render(<App />);
+  await screen.findByText("OpenTurbo");
+  assert.equal(screen.getByRole("button", { name: "Dashboard" }).getAttribute("aria-current"), "page");
+  assert.ok(screen.getByPlaceholderText(/ask the assistant/i));
+  assert.ok(screen.getByText("Review queue"));
 });
 
 function setupDom(): void {

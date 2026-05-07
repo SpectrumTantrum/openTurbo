@@ -61,6 +61,7 @@ import {
   Zap
 } from "lucide-react";
 import { createClient } from "./data/client.js";
+import { GenerativeStudyDashboard } from "./dashboard/GenerativeStudyDashboard.js";
 import { QuizView } from "./QuizView.js";
 import {
   buildNavMetrics,
@@ -77,12 +78,12 @@ const client = createClient();
 type ProviderHealthResult = Awaited<ReturnType<typeof client.providerHealth>>;
 type ProviderHealthItem = ProviderHealthResult[number];
 type ActionResult<T> = { ok: true; value: T } | { ok: false };
-type NavLabel = "Library" | "Spaces" | "Review" | "Analytics" | "Sync" | "Settings";
+type NavLabel = "Dashboard" | "Library" | "Spaces" | "Review" | "Analytics" | "Sync" | "Settings";
 type SettingsDraft = Pick<AppSnapshot["settings"], "syncServerUrl" | "privacyMode">;
 
 export function App() {
   const [snapshot, setSnapshot] = useState<AppSnapshot | null>(null);
-  const [activeNav, setActiveNav] = useState<NavLabel>("Library");
+  const [activeNav, setActiveNav] = useState<NavLabel>("Dashboard");
   const [activeTab, setActiveTab] = useState<StudyTab>("notes");
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
@@ -541,6 +542,29 @@ function WorkspaceView({
   onTestProvider: (providerId: string) => void | Promise<void>;
   onImport: () => void;
 }) {
+  if (activeNav === "Dashboard") {
+    return (
+      <FullWorkspaceSection title="Dashboard" subtitle="Ask the assistant to build your study view.">
+        <GenerativeStudyDashboard
+          snapshotHints={{
+            dueCount: snapshot.analytics.cardsDue,
+            weakAreas: snapshot.analytics.weakAreas,
+            jobs: snapshot.jobs.map((job) => ({
+              id: job.id,
+              label: job.label,
+              detail: job.detail,
+              status: job.status,
+              progress: job.progress
+            })),
+            firstSourceTitle: snapshot.sources[0]?.title
+          }}
+          onAction={() => undefined}
+          agentAvailable
+        />
+      </FullWorkspaceSection>
+    );
+  }
+
   if (activeNav === "Library") {
     return (
       <>
@@ -631,6 +655,7 @@ function Sidebar({
   onSettings: () => void;
 }) {
   const nav = [
+    ["Dashboard", Sparkles],
     ["Library", Library],
     ["Spaces", FolderKanban],
     ["Review", Brain],

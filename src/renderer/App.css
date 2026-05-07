@@ -721,3 +721,14 @@ svg {
     height: 430px;
   }
 }
+
+.generative-dashboard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.assistant-prompt {
+  border-top: 1px solid var(--mantine-color-gray-3, #e5e7eb);
+  padding: 8px 12px;
+  background: var(--mantine-color-gray-0, #f8fafc);
+}
