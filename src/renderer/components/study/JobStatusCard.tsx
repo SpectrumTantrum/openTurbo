@@ -1,5 +1,5 @@
-import { Group, Progress, Stack } from "@mantine/core";
-import { OTCard, OTStatusBadge } from "../ot/index.js";
+import { Group, Stack } from "@mantine/core";
+import { OTCard, OTProgressBar, OTStatusBadge } from "../ot/index.js";
 import type { OTStatus } from "../ot/index.js";
 
 export type JobStatus = "queued" | "running" | "completed" | "failed";
@@ -37,13 +37,7 @@ export function JobStatusCard({ jobs }: JobStatusCardProps) {
               <OTStatusBadge status={STATUS_TO_OT[job.status]} label={job.status} />
             </Group>
             {job.status === "running" && (
-              <Progress
-                value={job.progress}
-                color="teal"
-                size="sm"
-                radius="xl"
-                aria-label={job.label}
-              />
+              <OTProgressBar label={job.label} value={job.progress} hideLabel />
             )}
           </Stack>
         ))}

@@ -65,6 +65,13 @@ test("OTCard renders aside without a title without rendering a spacer span", () 
 
 const { OTMetric, OTProgressBar, OTStatusBadge } = await import("../src/renderer/components/ot/index.js");
 
+test("OTProgressBar with hideLabel still exposes accessible aria-label", () => {
+  render(wrap(<OTProgressBar label="Hidden" value={50} hideLabel />));
+  const bar = screen.getByRole("progressbar", { name: "Hidden" });
+  assert.equal(bar.getAttribute("aria-valuenow"), "50");
+  assert.equal(screen.queryByText("Hidden"), null, "visible text label should be hidden when hideLabel is set");
+});
+
 test("OTMetric renders label, value, optional delta with semantic color", () => {
   render(wrap(<OTMetric label="Cards due" value={12} delta={{ direction: "up", text: "+3 since yesterday" }} />));
   assert.ok(screen.getByText("Cards due"));
