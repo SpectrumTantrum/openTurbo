@@ -61,6 +61,7 @@ import {
   Zap
 } from "lucide-react";
 import { createClient } from "./data/client.js";
+import { StudyWorkspace } from "./workspace/StudyWorkspace.js";
 import { GenerativeStudyDashboard } from "./dashboard/GenerativeStudyDashboard.js";
 import { QuizView } from "./QuizView.js";
 import {
@@ -567,7 +568,7 @@ function WorkspaceView({
 
   if (activeNav === "Library") {
     return (
-      <>
+      <StudyWorkspace>
         <LibraryPane
           snapshot={snapshot}
           items={libraryItems}
@@ -608,7 +609,7 @@ function WorkspaceView({
           providerHealth={providerHealth}
           actionStatuses={actionStatuses}
         />
-      </>
+      </StudyWorkspace>
     );
   }
 

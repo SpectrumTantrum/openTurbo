@@ -87,6 +87,15 @@ test("App opens on the Generative Study Dashboard with assistant prompt at the b
   assert.ok(screen.getByText("Review queue"));
 });
 
+test("Library view still renders three-pane focused workspace (LibraryPane + EditorPane + AssistantPane)", { timeout: 20_000 }, async () => {
+  render(<App />);
+  await screen.findByText("OpenTurbo");
+  fireEvent.click(screen.getByRole("button", { name: "Library" }));
+  await screen.findByText("Sources (1)");
+  assert.ok(screen.getByText("Sources (1)"));
+  assert.ok(screen.getByText("AI Assistant"));
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
