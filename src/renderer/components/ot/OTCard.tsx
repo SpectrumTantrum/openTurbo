@@ -1,4 +1,5 @@
 import { Card, Group, Text } from "@mantine/core";
+import type { MantineSpacing } from "@mantine/core";
 import type { ReactNode } from "react";
 
 export interface OTCardProps {
@@ -6,7 +7,7 @@ export interface OTCardProps {
   aside?: ReactNode;
   children: ReactNode;
   withBorder?: boolean;
-  padding?: number | string;
+  padding?: MantineSpacing;
 }
 
 export function OTCard({ title, aside, children, withBorder = true, padding = "md" }: OTCardProps) {
@@ -20,7 +21,7 @@ export function OTCard({ title, aside, children, withBorder = true, padding = "m
     >
       {(title || aside) && (
         <Group justify="space-between" mb="xs">
-          {title ? <Text fw={800} size="sm">{title}</Text> : <span />}
+          {title && <Text fw={800} size="sm">{title}</Text>}
           {aside}
         </Group>
       )}

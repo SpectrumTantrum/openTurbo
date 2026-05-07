@@ -38,7 +38,7 @@ test("OTSectionHeader renders title, eyebrow, and trailing slot", () => {
   assert.ok(screen.getByTestId("trailing"));
 });
 
-test("OTEmptyState renders icon, headline, body, and primary action", async () => {
+test("OTEmptyState renders icon, headline as heading, body, and primary action", async () => {
   let clicked = 0;
   const { fireEvent } = await import("@testing-library/react");
   render(wrap(
@@ -50,9 +50,17 @@ test("OTEmptyState renders icon, headline, body, and primary action", async () =
     />
   ));
   assert.ok(screen.getByTestId("icon"));
-  assert.ok(screen.getByText("Nothing yet"));
+  assert.ok(screen.getByRole("heading", { name: "Nothing yet" }));
   fireEvent.click(screen.getByRole("button", { name: "Import" }));
   assert.equal(clicked, 1);
+});
+
+test("OTCard renders aside without a title without rendering a spacer span", () => {
+  render(wrap(<OTCard aside={<span data-testid="aside-only">3 items</span>}>body</OTCard>));
+  assert.ok(screen.getByTestId("aside-only"));
+  // No spurious empty span should appear before the aside.
+  const card = screen.getByTestId("aside-only").closest("[class*='Card']") ?? document.body;
+  assert.equal(card.querySelectorAll("span:empty").length, 0, "no empty span should be rendered as a spacer");
 });
 
 function setupDom(): void {

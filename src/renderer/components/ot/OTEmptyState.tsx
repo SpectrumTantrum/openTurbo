@@ -12,7 +12,7 @@ export function OTEmptyState({ icon, headline, body, action }: OTEmptyStateProps
   return (
     <Stack align="center" gap={8} py="lg">
       <div aria-hidden="true">{icon}</div>
-      <Text fw={800}>{headline}</Text>
+      <Text component="h3" fw={800}>{headline}</Text>
       {body && <Text size="sm" c="dimmed">{body}</Text>}
       {action && (
         <Button variant="light" onClick={action.onClick}>{action.label}</Button>
