@@ -1,4 +1,4 @@
-// src/renderer/dashboard/useDashboardActions.ts
+// src/renderer/dashboard/useDashboardActions.tsx
 import { useState, type ReactNode } from "react";
 import { ConfirmActionModal } from "../a2ui/ConfirmActionModal.js";
 import { classifyAction } from "../a2ui/actionBoundary.js";
@@ -102,18 +102,18 @@ export function useDashboardActions(options: UseDashboardActionsOptions) {
   }
 
   const modal: ReactNode = pending
-    ? ConfirmActionModal({
-        opened: true,
-        title: pending.title,
-        message: pending.message,
-        confirmLabel: pending.confirmLabel,
-        onCancel: () => setPending(null),
-        onConfirm: () => {
+    ? <ConfirmActionModal
+        opened={true}
+        title={pending.title}
+        message={pending.message}
+        confirmLabel={pending.confirmLabel}
+        onCancel={() => setPending(null)}
+        onConfirm={() => {
           const current = pending;
           setPending(null);
           void runMutating(current.actionId, current.args);
-        }
-      })
+        }}
+      />
     : null;
 
   return { modal, dispatch, lastError };
