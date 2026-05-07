@@ -16,13 +16,16 @@
     "dist": "npm run build && electron-builder"
   },
   "dependencies": {
+    "@copilotkit/a2ui-renderer": "^1.57.1",
+    "@copilotkit/react-core": "^1.57.1",
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@xyflow/react": "^12.10.0",
     "lucide-react": "^0.561.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "recharts": "^3.6.0"
+    "recharts": "^3.6.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
