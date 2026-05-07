@@ -29,7 +29,10 @@ export function CopilotShell({ children, runtimeUrl }: CopilotShellProps) {
     import("@copilotkit/react-core/v2").then((mod) => {
       setProvider(() => mod.CopilotKitProvider as ProviderComponent);
     }).catch(() => {
-      // SDK failed to load; fall back to rendering children unwrapped.
+      // In Node/test env the SDK's transitive CSS import throws and this is
+      // the always-expected branch: children render unwrapped. In a browser
+      // (Vite/Electron renderer) the dynamic import resolves and the next
+      // render wraps children in CopilotKitProvider.
     });
   }, [runtimeUrl]);
 

@@ -17,6 +17,11 @@ test("CopilotShell renders children when no runtimeUrl is provided (graceful no-
   assert.ok(screen.getByTestId("child"));
 });
 
+// Note: in the Node test runner, the dynamic SDK import always fails (CSS
+// side-effect import is incompatible with Node). This test only verifies that
+// children survive that failure unwrapped. The browser path that actually
+// wraps children in CopilotKitProvider is exercised in production but not
+// from this suite.
 test("CopilotShell renders children when runtimeUrl is provided", () => {
   render(wrap(<CopilotShell runtimeUrl="/api/copilotkit"><span data-testid="child">y</span></CopilotShell>));
   assert.ok(screen.getByTestId("child"));
