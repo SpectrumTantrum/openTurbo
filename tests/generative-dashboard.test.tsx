@@ -52,6 +52,16 @@ test("dashboard forwards action events from rendered cards to onAction", () => {
   assert.equal(received, "open-review");
 });
 
+test("clicking Open review session from the dashboard navigates to the focused workspace", async () => {
+  const { default: App } = await import("../src/renderer/App.js");
+  render(<App />);
+  await screen.findByText("OpenTurbo");
+  // Default view is Dashboard, which renders StaticOverview with a Review queue card.
+  fireEvent.click(screen.getByRole("button", { name: "Open review session" }));
+  // After click, nav switches to Review.
+  assert.equal(screen.getByRole("button", { name: "Review" }).getAttribute("aria-current"), "page");
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);

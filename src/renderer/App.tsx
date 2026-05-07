@@ -350,6 +350,45 @@ export function App() {
     setActiveNav("Library");
   }
 
+  function onDashboardAction(actionId: string, args?: unknown) {
+    switch (actionId) {
+      case "open-review":
+        setActiveNav("Review");
+        return;
+      case "focus-pack": {
+        const id = typeof args === "string" ? args : undefined;
+        if (id && snapshot) {
+          const pack = snapshot.packs.find((p) => p.id === id);
+          if (pack) selectPack(pack);
+        }
+        setActiveNav("Library");
+        return;
+      }
+      case "focus-source": {
+        const id = typeof args === "string" ? args : undefined;
+        if (id && snapshot) {
+          const source = snapshot.sources.find((s) => s.id === id);
+          if (source) selectSource(source);
+        }
+        setActiveNav("Library");
+        return;
+      }
+      case "open-pack": {
+        setActiveNav("Library");
+        return;
+      }
+      case "show-weak-area":
+        setActiveNav("Analytics");
+        return;
+      case "filter-library":
+        setActiveNav("Library");
+        return;
+      default:
+        // Mutating + unknown actions handled in Task 21.
+        return;
+    }
+  }
+
   if (!snapshot) {
     return (
       <MantineProvider>
@@ -405,6 +444,7 @@ export function App() {
               clearActionStatuses(["import", "importGenerate"]);
               setImportOpen(true);
             }}
+            onDashboardAction={onDashboardAction}
           />
         </main>
         <JobQueue jobs={snapshot.jobs} analytics={snapshot.analytics} />
@@ -502,7 +542,8 @@ function WorkspaceView({
   onSaveSettings,
   onOpenSettings,
   onTestProvider,
-  onImport
+  onImport,
+  onDashboardAction
 }: {
   activeNav: NavLabel;
   snapshot: AppSnapshot;
@@ -542,6 +583,7 @@ function WorkspaceView({
   onOpenSettings: () => void;
   onTestProvider: (providerId: string) => void | Promise<void>;
   onImport: () => void;
+  onDashboardAction: (actionId: string, args?: unknown) => void;
 }) {
   if (activeNav === "Dashboard") {
     return (
@@ -559,7 +601,7 @@ function WorkspaceView({
             })),
             firstSourceTitle: snapshot.sources[0]?.title
           }}
-          onAction={() => undefined}
+          onAction={onDashboardAction}
           agentAvailable
         />
       </FullWorkspaceSection>
