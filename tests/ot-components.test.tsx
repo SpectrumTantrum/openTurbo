@@ -97,6 +97,37 @@ test("OTStatusBadge maps status to color and label", () => {
   assert.ok(screen.getByText("Down"));
 });
 
+const { OTActionButton, OTInlineAlert } = await import("../src/renderer/components/ot/index.js");
+
+test("OTActionButton renders label, fires onClick, supports loading state", async () => {
+  let clicks = 0;
+  const { fireEvent } = await import("@testing-library/react");
+  const { rerender } = render(wrap(
+    <OTActionButton label="Generate" onClick={() => { clicks += 1; }} />
+  ));
+  fireEvent.click(screen.getByRole("button", { name: "Generate" }));
+  assert.equal(clicks, 1);
+
+  rerender(wrap(<OTActionButton label="Generate" onClick={() => { clicks += 1; }} loading />));
+  const loadingBtn = screen.getByRole("button", { name: "Generate" });
+  assert.equal(loadingBtn.hasAttribute("disabled"), true);
+  fireEvent.click(loadingBtn);
+  assert.equal(clicks, 1, "click should be ignored while loading");
+});
+
+test("OTActionButton with kind=mutating renders aria attribute", () => {
+  render(wrap(<OTActionButton label="Delete" onClick={() => undefined} kind="mutating" />));
+  const btn = screen.getByRole("button", { name: "Delete" });
+  assert.equal(btn.getAttribute("data-kind"), "mutating");
+});
+
+test("OTInlineAlert renders tone and message with role=status", () => {
+  render(wrap(<OTInlineAlert tone="info" message="Configure a provider before generating." />));
+  const alert = screen.getByRole("status");
+  assert.ok(alert.textContent?.includes("Configure a provider"));
+  assert.equal(alert.getAttribute("data-tone"), "info");
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);

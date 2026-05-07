@@ -10,3 +10,7 @@ export { OTProgressBar } from "./OTProgressBar.js";
 export type { OTProgressBarProps } from "./OTProgressBar.js";
 export { OTStatusBadge } from "./OTStatusBadge.js";
 export type { OTStatusBadgeProps, OTStatus } from "./OTStatusBadge.js";
+export { OTActionButton } from "./OTActionButton.js";
+export type { OTActionButtonProps, OTActionKind } from "./OTActionButton.js";
+export { OTInlineAlert } from "./OTInlineAlert.js";
+export type { OTInlineAlertProps, OTAlertTone } from "./OTInlineAlert.js";
