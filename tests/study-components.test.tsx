@@ -48,6 +48,47 @@ test("ReviewQueueCard renders due count, lists upcoming cards, fires onOpenRevie
   assert.equal(opened, 1);
 });
 
+const { WeakAreasCard, PackProgressCard } = await import("../src/renderer/components/study/index.js");
+
+test("WeakAreasCard renders ranked items and fires onFocusArea", () => {
+  let focused: string | null = null;
+  render(wrap(
+    <WeakAreasCard
+      areas={[
+        { id: "a1", label: "Membrane transport", score: 0.32 },
+        { id: "a2", label: "Cell cycle", score: 0.55 }
+      ]}
+      onFocusArea={(id) => { focused = id; }}
+    />
+  ));
+  assert.ok(screen.getByText("Membrane transport"));
+  fireEvent.click(screen.getByRole("button", { name: "Focus on Membrane transport" }));
+  assert.equal(focused, "a1");
+});
+
+test("WeakAreasCard renders empty state when areas is empty", () => {
+  render(wrap(<WeakAreasCard areas={[]} onFocusArea={() => undefined} />));
+  assert.ok(screen.getByText(/no weak areas/i));
+});
+
+test("PackProgressCard shows mastery and counts, fires onOpenPack", () => {
+  let opened = 0;
+  render(wrap(
+    <PackProgressCard
+      packId="pack_1"
+      title="Cellular Biology Study Pack"
+      mastery={68}
+      cardsTotal={24}
+      cardsDue={6}
+      onOpenPack={() => { opened += 1; }}
+    />
+  ));
+  assert.ok(screen.getByText("Cellular Biology Study Pack"));
+  assert.ok(screen.getByText("68"));
+  fireEvent.click(screen.getByRole("button", { name: "Open pack: Cellular Biology Study Pack" }));
+  assert.equal(opened, 1);
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
