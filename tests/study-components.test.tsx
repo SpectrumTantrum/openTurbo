@@ -122,6 +122,44 @@ test("JobStatusCard renders status badge per job and progress bar for running jo
   assert.equal(running.getAttribute("aria-valuenow"), "70");
 });
 
+const { SourcePickerCard, SyncStatusCard } = await import("../src/renderer/components/study/index.js");
+
+test("SourcePickerCard renders sources, fires onSelect with id", () => {
+  let chosen = "";
+  render(wrap(
+    <SourcePickerCard
+      title="Pick sources for quiz"
+      sources={[
+        { id: "src_1", title: "Lecture 5 notes", kindLabel: "TEXT" },
+        { id: "src_2", title: "Chapter 3", kindLabel: "PDF" }
+      ]}
+      onSelect={(id) => { chosen = id; }}
+    />
+  ));
+  fireEvent.click(screen.getByRole("button", { name: "Use source: Chapter 3" }));
+  assert.equal(chosen, "src_2");
+});
+
+test("SyncStatusCard renders state and last sync info", () => {
+  render(wrap(
+    <SyncStatusCard
+      enabled
+      state="connected"
+      message="All caught up"
+      lastSyncLabel="2 minutes ago"
+    />
+  ));
+  assert.ok(screen.getByText("connected"));
+  assert.ok(screen.getByText("All caught up"));
+  assert.ok(screen.getByText("2 minutes ago"));
+});
+
+test("SyncStatusCard renders disabled state when sync is off", () => {
+  render(wrap(<SyncStatusCard enabled={false} state="offline" message="Local-only" />));
+  assert.ok(screen.getByText("offline"));
+  assert.ok(screen.getByText("Local-only"));
+});
+
 function setupDom(): void {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://127.0.0.1/" });
   const requestAnimationFrameShim = (callback: FrameRequestCallback) => dom.window.setTimeout(() => callback(Date.now()), 0);
