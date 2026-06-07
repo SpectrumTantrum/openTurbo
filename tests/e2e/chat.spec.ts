@@ -232,6 +232,34 @@ test.fixme("same-JS-tick double invocation does not double-submit (missing sync 
   expect(await bubbles(page).count() - before).toBe(2);
 });
 
+/**
+ * BUG (filed, low severity — issue #4): after sending, the chat scroll viewport
+ * stays pinned at the top (scrollTop=0) while content overflows, so the user's
+ * just-sent question and the assistant reply render below the fold. AssistantPane
+ * has no scroll-to-bottom ref/effect (App.tsx:1667-1715). Marked fixme so the
+ * committed suite stays green while documenting the defect.
+ */
+test.fixme("chat scrolls to the newest message after sending", async ({ page }) => {
+  const { input, send } = await openLibraryChat(page);
+  // Send several messages so content overflows the fixed-height scroll area.
+  for (let i = 0; i < 4; i++) {
+    await input.fill(`Overflow question ${i}: explain cellular respiration and ATP synthesis in detail.`);
+    await expect(send).toBeEnabled();
+    await send.click();
+    await expect(page.locator(".chat-bubble.assistant").filter({ hasText: "Based on" }).last()).toBeVisible();
+  }
+  // EXPECTED: the viewport is scrolled to (near) the bottom. ACTUAL: scrollTop=0.
+  const atBottom = await page.evaluate(() => {
+    const sc =
+      document.querySelector(".chat-scroll [data-radix-scroll-area-viewport]") ||
+      document.querySelector(".chat-scroll .mantine-ScrollArea-viewport") ||
+      document.querySelector(".chat-scroll");
+    if (!sc) return false;
+    return sc.scrollTop >= sc.scrollHeight - sc.clientHeight - 4;
+  });
+  expect(atBottom, "chat did not auto-scroll to the newest message").toBe(true);
+});
+
 test("a very long message sends and renders without layout crash", async ({ page, consoleErrors }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const { input, send } = await openLibraryChat(page);

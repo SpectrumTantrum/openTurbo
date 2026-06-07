@@ -5,7 +5,7 @@ across both surfaces, with adversarial verification before any bug was filed.
 
 - **Commit swept:** `231dd93` (branch `development`)
 - **Harness added:** `@playwright/test` + `playwright.config.ts` + `tests/e2e/`
-- **Result:** 6 reproducible bugs filed as issues #1–#6 (all `bug` + `needs-triage`)
+- **Result:** 9 issues filed (#1–#9) — 6 confirmed by the sweep + 3 latent/UX items surfaced during reconciliation (all `bug` + `needs-triage`)
 - **Sweep cost:** 23 agents · ~25 min · 16 feature areas (15 browser + 1 Electron)
 
 ## Scope & framing
@@ -44,6 +44,18 @@ execution — all intentionally unimplemented.
 | [#5](https://github.com/SpectrumTantrum/openTurbo/issues/5) | low | jobqueue | Footer chart card renders empty on first launch | Recharts `AreaChart` can't draw from a single data point |
 | [#6](https://github.com/SpectrumTantrum/openTurbo/issues/6) | low | jobqueue | Footer job cards clip progress bars at viewport height ≤ 700 | `max-height:700` media query, `src/renderer/App.css:701-709` |
 
+### Reconciliation extras (#7–#9)
+
+A post-sweep audit found the per-area agents had left `test.fixme` markers for 3
+behaviors the confidence filter dropped before verification. All 3 reproduce
+live; filed at the user's request with explicit caveats:
+
+| # | Sev | Area | Bug | Caveat |
+|---|-----|------|-----|--------|
+| [#7](https://github.com/SpectrumTantrum/openTurbo/issues/7) | low | quiz | In-progress quiz answers reset on study-tab switch | Real & backend-independent (`QuizView` unmounts); intent debatable |
+| [#8](https://github.com/SpectrumTantrum/openTurbo/issues/8) | low | generation | Double-click a generate action → 2 packs | Mock-specific; guard would hold with a slower real backend (latent) |
+| [#9](https://github.com/SpectrumTantrum/openTurbo/issues/9) | low | chat | `handleChat` lacks a synchronous re-entrancy guard | Not user-reachable via physical input; latent code smell |
+
 ## Areas that came back clean
 
 navigation · source import + generation · notes · flashcards/SM-2 review · review
@@ -54,8 +66,8 @@ provider health all worked).
 ## The committed suite
 
 15 browser spec files + Electron specs under `tests/e2e/`. Current state:
-**109 passing, 6 `test.fixme`** (the bugs above, each documented as a skipped
-repro test that should be converted to a passing regression when fixed).
+**109 passing, 9 `test.fixme`** — one repro test per filed issue (#1–#9), each a
+skipped test that should become a passing regression when the bug is fixed.
 
 ```bash
 npm run test:e2e            # browser project (needs a running `npm run dev`, or it starts one)

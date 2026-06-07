@@ -227,4 +227,44 @@ test.describe("Job Queue footer", () => {
 
     expect(consoleErrors, "wide footer logged console errors").toEqual([]);
   });
+
+  /**
+   * BUG (filed, low severity — issue #5): the footer chart card renders visually
+   * empty on first launch. analytics.masteryByTopic has a single data point (one
+   * seeded pack) and a Recharts AreaChart cannot draw an area from one point, so
+   * zero area paths are drawn. Marked fixme; suite stays green via the dimension-
+   * only assertion in the test above.
+   */
+  test.fixme("footer chart card draws an area (not empty) on first launch", async ({ page }) => {
+    await page.goto("/");
+    const footer = page.locator("footer.job-queue");
+    await expect(footer.locator(".chart-card svg.recharts-surface")).toBeVisible();
+    const areaCount = await footer.locator(".chart-card .recharts-area-area").count();
+    // EXPECTED: at least one area path. ACTUAL: 0 (single-point AreaChart).
+    expect(areaCount, "footer chart card renders empty (no area path) on first launch").toBeGreaterThan(0);
+  });
+
+  /**
+   * BUG (filed, low severity — issue #6): at viewport height <= 700 a max-height
+   * media query (App.css:701-709) collapses the footer to ~144px and pins each
+   * job card to ~88px while card content needs 113-167px, so per-card progress
+   * bars are clipped off the bottom (the grid is not scrollable). Marked fixme.
+   */
+  test.fixme("footer job-card progress bars are not clipped at height <= 700", async ({ page }) => {
+    await page.setViewportSize(NARROW);
+    await page.goto("/");
+    const footer = page.locator("footer.job-queue");
+    await expect(footer).toBeVisible();
+    // EXPECTED: every progress bar sits within the footer. ACTUAL: some bars
+    // extend below the footer's bottom edge (clipped by overflow:hidden).
+    const anyClipped = await page.evaluate(() => {
+      const footerEl = document.querySelector("footer.job-queue");
+      if (!footerEl) return false;
+      const fb = footerEl.getBoundingClientRect().bottom;
+      return Array.from(footerEl.querySelectorAll(".mantine-Progress-root")).some(
+        (bar) => bar.getBoundingClientRect().bottom > fb + 1,
+      );
+    });
+    expect(anyClipped, "a progress bar is clipped below the footer at height <= 700").toBe(false);
+  });
 });
