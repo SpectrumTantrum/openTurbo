@@ -10,3 +10,8 @@ coverage/
 .env.*
 !.env.example
 OpenTurbo.local/
+.playwright-mcp/
+dashboard-merged.png
+playwright-report/
+test-results/
+phase0-browser-preview.png

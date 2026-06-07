@@ -12,6 +12,9 @@
     "build:main": "tsc -p tsconfig.main.json",
     "typecheck": "tsc --noEmit",
     "test": "npm run build:main && node --test dist/tests/*.test.js",
+    "test:e2e": "playwright test --project=browser",
+    "test:e2e:electron": "playwright test --project=electron",
+    "test:e2e:report": "playwright show-report",
     "package": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder"
   },
@@ -28,6 +31,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/jsdom": "^28.0.1",
